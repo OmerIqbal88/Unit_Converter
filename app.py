@@ -96,260 +96,292 @@ UNIT_CATEGORIES = {
     # Add other categories as needed
 }
 
-# --- CUSTOM CSS ---
+# --- STYLES ---
 def load_css():
     st.markdown("""
     <style>
-    .stApp {
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        background-attachment: fixed;
-    }
-    .main-container {
-        background-color: rgba(255, 255, 255, 0.85);
-        padding: 2rem;
-        border-radius: 18px;
-        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.20);
-        border: 1px solid rgba(255, 255, 255, 0.18);
-    }
-    .result-box {
-        background-color: #e0f7fa;
-        border-left: 7px solid #00bcd4;
-        color: #004d40;
-        padding: 1.5rem;
-        border-radius: 11px;
-        margin-top: 20px;
-        text-align: center;
-    }
-    .result-text {
-        font-size: 1.65rem;
-        font-weight: 600;
-    }
+        /* Main App background */
+        .stApp {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background-attachment: fixed;
+        }
+
+        /* Sidebar styling */
+        .css-1d391kg {
+            background-color: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        /* Main content card */
+        .main-container {
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        /* Result display box */
+        .result-box {
+            background-color: #e0f2f1; /* Light teal background */
+            border-left: 6px solid #00796b; /* Darker teal border */
+            color: #004d40; /* Dark teal text */
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .result-text {
+            font-size: 1.75rem;
+            font-weight: 600;
+        }
+
     </style>
     """, unsafe_allow_html=True)
 
-# --- UNIT CONVERTER ---
+# --- CONVERTER FUNCTIONS ---
+
 def render_standard_converter(category_name):
+    """Renders the UI for standard unit conversions."""
     category = UNIT_CATEGORIES[category_name]
-    if category_name == "Temperature":
-        units = category["units"]
-    else:
-        units = list(category["units"].keys())
+    icon = category["icon"]
+    st.header(f"{icon} {category_name} Converter")
 
-    st.header(f"{category['icon']} {category_name} Converter")
-    from_unit = st.selectbox("From Unit", units, key=f"from_{category_name}")
-    to_unit = st.selectbox("To Unit", units, key=f"to_{category_name}")
-    value = st.number_input("Enter Value", value=1.0, format="%.8f")
-
-    # Temperature Conversion
-    if category_name == "Temperature":
-        result = temp_convert(value, from_unit, to_unit)
-    else:
-        # General unit conversion
-        base_val = value * category["units"][from_unit]
-        result = base_val / category["units"][to_unit]
-
-    st.markdown(f"**{value} {from_unit} = {result:.8f} {to_unit}**")
-
-def temp_convert(val, from_unit, to_unit):
-    # Convert from source to Celsius first
-    if from_unit == "Celsius (°C)":
-        c = val
-    elif from_unit == "Fahrenheit (°F)":
-        c = (val - 32) * 5/9
-    else:  # Kelvin
-        c = val - 273.15
-    # Convert from Celsius to target unit
-    if to_unit == "Celsius (°C)":
-        return c
-    elif to_unit == "Fahrenheit (°F)":
-        return c * 9/5 + 32
-    else:  # Kelvin
-        return c + 273.15
-
-# --- BMI CALCULATOR ---
-def render_bmi_calculator():
-    st.header("🏋️ BMI Calculator")
-    weight = st.number_input("Weight (kg)", min_value=0.0, value=70.0, format="%.2f")
-    height_cm = st.number_input("Height (cm)", min_value=0.0, value=170.0, format="%.2f")
-    height_m = height_cm / 100
-    if st.button("Calculate BMI"):
-        bmi = weight / (height_m ** 2) if height_m > 0 else 0
-        st.success(f"Your BMI = {bmi:.2f}")
-        if bmi < 18.5:
-            st.info("Category: Underweight")
-        elif bmi < 24.9:
-            st.info("Category: Normal weight")
-        elif bmi < 29.9:
-            st.info("Category: Overweight")
-        else:
-            st.info("Category: Obese")
-
-# --- REACTANCE & SUSCEPTANCE CALCULATOR ---
-def render_reactance_susceptance_calculator():
-    st.header("⚛️ Reactance & Susceptance Calculators")
-    calc_mode = st.radio("Choose Calculation", [
-        "Inductive Reactance (from L, f)", "Inductance (from X, f)",
-        "Capacitive Reactance (from C, f)", "Capacitance (from Xc, f)",
-        "Susceptance (B) from Capacitance", "Capacitance from Susceptance"
-    ], horizontal=True)
-
-    if calc_mode == "Inductive Reactance (from L, f)":
-        L = st.number_input("Enter Inductance (H)", min_value=0.0, value=0.01, format="%.6f")
-        f = st.number_input("Enter Frequency (Hz)", min_value=0.0, value=50.0, format="%.2f")
-        Xl = 2 * math.pi * f * L
-        st.markdown(f'**Inductive Reactance Xₗ = {Xl:.4f} Ω**')
-
-    elif calc_mode == "Inductance (from X, f)":
-        Xl = st.number_input("Enter Inductive Reactance (Ω)", min_value=0.0, value=10.0, format="%.4f")
-        f = st.number_input("Enter Frequency (Hz)", min_value=1e-6, value=50.0, format="%.2f")
-        L = Xl / (2 * math.pi * f) if f > 0 else 0
-        st.markdown(f'**Inductance L = {L:.6f} H**')
-
-    elif calc_mode == "Capacitive Reactance (from C, f)":
-        C = st.number_input("Enter Capacitance (F)", min_value=1e-12, value=1e-6, format="%.10f")
-        f = st.number_input("Enter Frequency (Hz)", min_value=0.0, value=50.0, format="%.2f")
-        Xc = 1 / (2 * math.pi * f * C) if f > 0 and C > 0 else 0
-        st.markdown(f'**Capacitive Reactance Xc = {Xc:.4f} Ω**')
-
-    elif calc_mode == "Capacitance (from Xc, f)":
-        Xc = st.number_input("Enter Capacitive Reactance (Ω)", min_value=1e-9, value=10.0, format="%.4f")
-        f = st.number_input("Enter Frequency (Hz)", min_value=1e-6, value=50.0, format="%.2f")
-        C = 1 / (2 * math.pi * f * Xc) if f > 0 and Xc > 0 else 0
-        st.markdown(f'**Capacitance C = {C:.8f} F**')
-
-    elif calc_mode == "Susceptance (B) from Capacitance":
-        C = st.number_input("Enter Capacitance (F)", min_value=1e-12, value=1e-6, format="%.10f")
-        f = st.number_input("Enter Frequency (Hz)", min_value=0.0, value=50.0, format="%.2f")
-        B = 2 * math.pi * f * C
-        st.markdown(f'**Susceptance B = {B:.8f} S**')
-
-    elif calc_mode == "Capacitance from Susceptance":
-        B = st.number_input("Enter Susceptance (S)", min_value=1e-12, value=1e-6, format="%.10f")
-        f = st.number_input("Enter Frequency (Hz)", min_value=1e-6, value=50.0, format="%.2f")
-        C = B / (2 * math.pi * f) if f > 0 else 0
-        st.markdown(f'**Capacitance C = {C:.8f} F**')
-
-# --- CAPACITANCE CONVERTER ---
-def render_capacitance_converter():
-    st.header("💡 Capacitance Converter")
-    category = UNIT_CATEGORIES["Capacitance"]
     units = list(category["units"].keys())
-    from_unit = st.selectbox("From Unit", units, key="from_cap")
-    to_unit = st.selectbox("To Unit", units, key="to_cap")
-    value = st.number_input("Enter Capacitance Value", value=1.0, format="%.8f")
-    base_val = value * category["units"][from_unit]
-    result = base_val / category["units"][to_unit]
-    st.markdown(f'**{value} {from_unit} = {result:.8f} {to_unit}**')
+    
+    col1, col2, col3 = st.columns([2, 1, 2])
 
-# --- ENHANCED PER UNIT SYSTEM CALCULATOR ---
-def render_enhanced_per_unit_calculator():
-    st.header("⚡ Enhanced Per-Unit (PU) System Calculator")
-    st.info("Advanced PU calculations for Resistance, Reactance, Susceptance (including per km inputs).")
+    with col1:
+        from_unit = st.selectbox("From Unit", units, key=f"from_{category_name}")
+        value = st.number_input("Enter Value", value=1.0, format="%.6f", key=f"val_{category_name}")
+        
+    with col2:
+        st.markdown("<div style='text-align: center; font-size: 2.5rem; margin-top: 45px;'>➡️</div>", unsafe_allow_html=True)
+    
+    with col3:
+        to_unit = st.selectbox("To Unit", units, index=1, key=f"to_{category_name}")
+    
+    # Perform conversion
+    if from_unit and to_unit and value is not None:
+        try:
+            # Convert input value to the base unit
+            base_value = value * category["units"][from_unit]
+            # Convert from base unit to the target unit
+            result = base_value / category["units"][to_unit]
 
+            st.markdown('<div class="result-box">', unsafe_allow_html=True)
+            st.markdown(f'<p class="result-text">{value:.4f} {from_unit} = {result:.6g} {to_unit}</p>', unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
+        except ZeroDivisionError:
+            st.error("Conversion factor for the target unit is zero. Cannot perform conversion.")
+
+
+def render_temperature_converter():
+    """Renders the UI for temperature conversion."""
+    st.header("🌡️ Temperature Converter")
+    
+    temp_units = ["Celsius (°C)", "Fahrenheit (°F)", "Kelvin (K)"]
+    
+    col1, col2, col3 = st.columns([2, 1, 2])
+    
+    with col1:
+        from_unit = st.selectbox("From Unit", temp_units, key="from_temp")
+        value = st.number_input("Enter Temperature", value=0.0, format="%.2f", key="val_temp")
+        
+    with col2:
+        st.markdown("<div style='text-align: center; font-size: 2.5rem; margin-top: 45px;'>➡️</div>", unsafe_allow_html=True)
+    
+    with col3:
+        to_unit = st.selectbox("To Unit", temp_units, index=1, key="to_temp")
+
+    # Conversion logic
+    if from_unit == to_unit:
+        result = value
+    else:
+        # First, convert from source to Celsius
+        if from_unit == "Fahrenheit (°F)":
+            celsius = (value - 32) * 5.0 / 9.0
+        elif from_unit == "Kelvin (K)":
+            celsius = value - 273.15
+        else: # from_unit is Celsius
+            celsius = value
+        
+        # Then, convert from Celsius to target
+        if to_unit == "Fahrenheit (°F)":
+            result = (celsius * 9.0 / 5.0) + 32
+        elif to_unit == "Kelvin (K)":
+            result = celsius + 273.15
+        else: # to_unit is Celsius
+            result = celsius
+            
+    st.markdown('<div class="result-box">', unsafe_allow_html=True)
+    st.markdown(f'<p class="result-text">{value:.2f} {from_unit} = {result:.2f} {to_unit}</p>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+
+def render_bmi_calculator():
+    """Renders the UI for BMI calculation."""
+    st.header("🏋️ Body Mass Index (BMI) Calculator")
+    st.info("BMI is a measure of body fat based on height and weight.")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        weight_unit = st.radio("Weight Unit", ["Kilograms (kg)", "Pounds (lb)"])
+        weight = st.number_input("Enter Your Weight", min_value=0.0, value=70.0, format="%.2f")
+        
+    with col2:
+        height_unit = st.radio("Height Unit", ["Centimeters (cm)", "Meters (m)", "Feet & Inches"])
+        if height_unit == "Feet & Inches":
+            h_ft = st.number_input("Feet", min_value=0, value=5)
+            h_in = st.number_input("Inches", min_value=0, value=9)
+            # Convert feet and inches to meters
+            height_m = (h_ft * 12 + h_in) * 0.0254
+        else:
+            height = st.number_input(f"Enter Your Height in {height_unit.split(' ')[0]}", min_value=0.0, value=175.0 if height_unit == "Centimeters (cm)" else 1.75, format="%.2f")
+            # Convert height to meters
+            height_m = height / 100 if height_unit == "Centimeters (cm)" else height
+
+    # Convert weight to kg
+    weight_kg = weight * 0.453592 if weight_unit == "Pounds (lb)" else weight
+    
+    if st.button("Calculate BMI", use_container_width=True):
+        if height_m > 0 and weight_kg > 0:
+            bmi = weight_kg / (height_m ** 2)
+            
+            # Determine BMI category
+            if bmi < 18.5:
+                category = "Underweight"
+                color = "blue"
+            elif 18.5 <= bmi < 25:
+                category = "Normal weight"
+                color = "green"
+            elif 25 <= bmi < 30:
+                category = "Overweight"
+                color = "orange"
+            else:
+                category = "Obese"
+                color = "red"
+            
+            st.markdown('<div class="result-box">', unsafe_allow_html=True)
+            st.markdown(f'<p class="result-text">Your BMI is {bmi:.2f}</p>', unsafe_allow_html=True)
+            st.markdown(f'<p style="color:{color}; font-size:1.2rem; font-weight:bold;">Category: {category}</p>', unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
+        else:
+            st.error("Please enter valid weight and height.")
+
+
+def render_per_unit_calculator():
+    """Renders the UI for Per Unit calculations in electrical engineering."""
+    st.header("⚡ Per-Unit (PU) System Calculator")
+    st.info("A tool for power system analysis. All calculations assume a three-phase system.")
+    
     st.subheader("System Base Values")
     col1, col2 = st.columns(2)
-    base_mva = col1.number_input("Base MVA (S_base)", min_value=0.1, value=100.0, format="%.2f")
-    base_kv = col2.number_input("Base Voltage (V_base, Line-to-Line)", min_value=0.1, value=13.8, format="%.2f")
+    with col1:
+        base_mva = st.number_input("Base MVA (S_base)", min_value=0.1, value=100.0, format="%.2f")
+    with col2:
+        base_kv = st.number_input("Base Voltage (V_base, Line-to-Line)", min_value=0.1, value=13.8, format="%.2f")
 
-    z_base = (base_kv ** 2) / base_mva
-    i_base = (base_mva * 1000) / (math.sqrt(3) * base_kv)
-
-    with st.expander("Derived Base Values", expanded=True):
-        st.metric(label="Base Impedance (Z_base)", value=f"{z_base:.4f} Ω")
-        st.metric(label="Base Current (I_base)", value=f"{i_base:.4f} A")
-
+    # Calculate derived base values
+    if base_mva > 0 and base_kv > 0:
+        z_base = (base_kv ** 2) / base_mva
+        i_base = (base_mva * 1000) / (math.sqrt(3) * base_kv)
+        
+        with st.expander("Derived Base Values", expanded=True):
+            st.metric(label="Base Impedance (Z_base)", value=f"{z_base:.4f} Ω")
+            st.metric(label="Base Current (I_base)", value=f"{i_base:.4f} A")
+    
     st.markdown("---")
-    st.subheader("Enter Actual Values or Per Kilometer Values")
-    calc_type = st.radio("Choose Parameter", [
-        "Impedance (Ω)", "Resistance (Ω)", "Reactance (Ω)", "Susceptance (S)"
-    ], horizontal=True)
-
-    per_km = st.checkbox("Input as per km value?")
-    if per_km:
-        val_per_km = st.number_input(f"Value per km ({calc_type})", min_value=0.0, value=0.05, format="%.6f")
-        total_km = st.number_input("Total Length (km)", min_value=0.1, value=10.0, format="%.2f")
-        actual_val = val_per_km * total_km
-    else:
-        actual_val = st.number_input(f"Total Value ({calc_type})", min_value=0.0, value=0.5, format="%.6f")
-
-    if st.button("Convert to Per-Unit", use_container_width=True):
-        if calc_type in ["Impedance (Ω)", "Resistance (Ω)", "Reactance (Ω)"]:
+    
+    calc_type = st.selectbox("Choose Conversion Type", ["Actual Value to Per-Unit", "Per-Unit to Actual Value"])
+    
+    if calc_type == "Actual Value to Per-Unit":
+        st.subheader("Convert Actual Value to PU")
+        param_type = st.radio("Select Parameter", ["Impedance (Ω)", "Current (A)", "Voltage (kV)"])
+        
+        if param_type == "Impedance (Ω)":
+            actual_val = st.number_input("Actual Impedance (Z_actual) in Ω", value=z_base*0.05, format="%.4f")
             pu_val = actual_val / z_base if z_base > 0 else 0
-            st.success(f"Per-Unit {calc_type.split()[0]} = {pu_val:.6f} pu")
-        elif calc_type == "Susceptance (S)":
-            b_base = 1 / z_base if z_base > 0 else 0
-            pu_val = actual_val / b_base if b_base > 0 else 0
-            st.success(f"Per-Unit Susceptance = {pu_val:.6f} pu")
+            st.success(f"Per-Unit Impedance = {pu_val:.6f} pu")
+            
+        elif param_type == "Current (A)":
+            actual_val = st.number_input("Actual Current (I_actual) in A", value=i_base, format="%.4f")
+            pu_val = actual_val / i_base if i_base > 0 else 0
+            st.success(f"Per-Unit Current = {pu_val:.6f} pu")
+            
+        elif param_type == "Voltage (kV)":
+            actual_val = st.number_input("Actual Voltage (V_actual) in kV (L-L)", value=base_kv, format="%.4f")
+            pu_val = actual_val / base_kv if base_kv > 0 else 0
+            st.success(f"Per-Unit Voltage = {pu_val:.6f} pu")
 
-# --- ZIP LOAD MODEL CALCULATOR ---
-def render_zip_load_calculator():
-    st.header("🔌 ZIP Load Model Calculator")
-    st.write("The ZIP model expresses load as a mix of constant Impedance (Z), Current (I), and Power (P) terms:")
-    st.latex(r"P_{load}=P_0 (a_z V^2 + a_i V + a_p)")
-    st.latex(r"Q_{load}=Q_0 (b_z V^2 + b_i V + b_p)")
+    else: # Per-Unit to Actual Value
+        st.subheader("Convert PU to Actual Value")
+        param_type = st.radio("Select Parameter", ["Impedance (pu)", "Current (pu)", "Voltage (pu)"])
 
-    st.subheader("Coefficients (sum must be 1 for each set):")
-    az = st.slider("Impedance (a_z)", 0.0, 1.0, 0.3, 0.01)
-    ai = st.slider("Current (a_i)", 0.0, 1.0, 0.3, 0.01)
-    ap = st.slider("Power (a_p)", 0.0, 1.0, 0.4, 0.01)
-    if round(az + ai + ap, 2) != 1.0:
-        st.error("a_z + a_i + a_p must sum to 1")
+        if param_type == "Impedance (pu)":
+            pu_val = st.number_input("Per-Unit Impedance (Z_pu)", value=0.05, format="%.6f")
+            actual_val = pu_val * z_base
+            st.success(f"Actual Impedance = {actual_val:.4f} Ω")
 
-    bz = st.slider("Impedance (b_z)", 0.0, 1.0, 0.3, 0.01)
-    bi = st.slider("Current (b_i)", 0.0, 1.0, 0.3, 0.01)
-    bp = st.slider("Power (b_p)", 0.0, 1.0, 0.4, 0.01)
-    if round(bz + bi + bp, 2) != 1.0:
-        st.error("b_z + b_i + b_p must sum to 1")
+        elif param_type == "Current (pu)":
+            pu_val = st.number_input("Per-Unit Current (I_pu)", value=1.0, format="%.6f")
+            actual_val = pu_val * i_base
+            st.success(f"Actual Current = {actual_val:.4f} A")
 
-    st.subheader("Base Load & Voltage Inputs:")
-    p0 = st.number_input("P₀ (Base Active Power, kW)", value=100.0, format="%.3f")
-    q0 = st.number_input("Q₀ (Base Reactive Power, kVAR)", value=50.0, format="%.3f")
-    v = st.number_input("Voltage (per unit)", min_value=0.0, value=1.0, format="%.3f")
+        elif param_type == "Voltage (pu)":
+            pu_val = st.number_input("Per-Unit Voltage (V_pu)", value=1.0, format="%.6f")
+            actual_val = pu_val * base_kv
+            st.success(f"Actual Voltage = {actual_val:.4f} kV (L-L)")
 
-    if st.button("Calculate ZIP Load", key="calc_zip"):
-        p_load = p0 * (az * v**2 + ai * v + ap)
-        q_load = q0 * (bz * v**2 + bi * v + bp)
-        st.success(f"Active Power P_load = {p_load:.4f} kW")
-        st.info(f"Reactive Power Q_load = {q_load:.4f} kVAR")
 
 # --- MAIN APP LAYOUT ---
 load_css()
-st.title("🌟 Enhanced All-in-One Engineering & Science Converter")
 
+st.title("🌟 All-in-One Engineering & Science Converter")
+
+# --- SIDEBAR NAVIGATION ---
 st.sidebar.title("Navigation")
 app_mode = st.sidebar.radio(
     "Choose a Calculator",
-    [
-        "Unit Converter", "🌡️ Temperature", "🏋️ BMI Calculator", "⚡ Per-Unit System",
-        "⚛️ Reactance & Susceptance", "💡 Capacitance Converter", "🔌 ZIP Load Model"
-    ]
+    ["Unit Converter", "🌡️ Temperature", "🏋️ BMI Calculator", "⚡ Per-Unit System"]
 )
 
 st.sidebar.markdown("---")
 st.sidebar.info(
-    "This enhanced app provides a diverse collection of interactive scientific, engineering, and power system tools with a modern, visually appealing design."
+    "This app provides tools for a wide range of conversions and calculations across various scientific and engineering disciplines."
 )
 
-# --- APP MODE SELECTION ---
-if app_mode == "Unit Converter":
-    category_names = list(UNIT_CATEGORIES.keys())
-    selected_category = st.radio("Select Conversion Category:", category_names, horizontal=True)
-    render_standard_converter(selected_category)
+# --- MAIN CONTENT AREA ---
+with st.container():
+    st.markdown('<div class="main-container">', unsafe_allow_html=True)
 
-elif app_mode == "🌡️ Temperature":
-    render_standard_converter("Temperature")
+    if app_mode == "Unit Converter":
+        st.header("Select a Category")
+        # Create a grid for category selection
+        category_names = list(UNIT_CATEGORIES.keys())
+        cols = st.columns(4)
+        selected_category = category_names[0] # Default
+        
+        # Using radio buttons for a cleaner selection interface
+        selected_category = st.radio(
+            "Conversion Category:",
+            category_names,
+            horizontal=True,
+            label_visibility="collapsed"
+        )
+        st.markdown("---")
+        render_standard_converter(selected_category)
+        
+    elif app_mode == "🌡️ Temperature":
+        render_temperature_converter()
+        
+    elif app_mode == "🏋️ BMI Calculator":
+        render_bmi_calculator()
+        
+    elif app_mode == "⚡ Per-Unit System":
+        render_per_unit_calculator()
 
-elif app_mode == "🏋️ BMI Calculator":
-    render_bmi_calculator()
-
-elif app_mode == "⚡ Per-Unit System":
-    render_enhanced_per_unit_calculator()
-
-elif app_mode == "⚛️ Reactance & Susceptance":
-    render_reactance_susceptance_calculator()
-
-elif app_mode == "💡 Capacitance Converter":
-    render_capacitance_converter()
-
-elif app_mode == "🔌 ZIP Load Model":
-    render_zip_load_calculator()
+    st.markdown('</div>', unsafe_allow_html=True)
