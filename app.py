@@ -10,29 +10,90 @@ st.set_page_config(
 )
 
 # --- DATA & CONSTANTS ---
+# Expanded unit categories with base units for consistency
+# Base unit for most is the standard SI unit (e.g., Meters, Kilograms, etc.)
 UNIT_CATEGORIES = {
     "Length": {
         "units": {
-            "Meters (m)": 1.0, "Centimeters (cm)": 0.01, "Millimeters (mm)": 0.001, "Kilometers (km)": 1000.0,
-            "Inches (in)": 0.0254, "Feet (ft)": 0.3048, "Yards (yd)": 0.9144, "Miles (mi)": 1609.34,
-            "Micrometers (µm)": 1e-6, "Nanometers (nm)": 1e-9, "Angstroms (Å)": 1e-10, "Light Years (ly)": 9.461e15
+            "Meters (m)": 1.0, "Centimeters (cm)": 0.01, "Millimeters (mm)": 0.001,
+            "Kilometers (km)": 1000.0, "Inches (in)": 0.0254, "Feet (ft)": 0.3048,
+            "Yards (yd)": 0.9144, "Miles (mi)": 1609.34, "Micrometers (µm)": 1e-6,
+            "Nanometers (nm)": 1e-9, "Angstroms (Å)": 1e-10, "Light Years (ly)": 9.461e15
         }, "icon": "📏"
     },
     "Mass": {
         "units": {
-            "Kilograms (kg)": 1.0, "Grams (g)": 0.001, "Milligrams (mg)": 1e-6, "Tonnes (t)": 1000.0,
-            "Pounds (lb)": 0.453592, "Ounces (oz)": 0.0283495, "Carats (ct)": 0.0002
+            "Kilograms (kg)": 1.0, "Grams (g)": 0.001, "Milligrams (mg)": 1e-6,
+            "Tonnes (t)": 1000.0, "Pounds (lb)": 0.453592, "Ounces (oz)": 0.0283495,
+            "Carats (ct)": 0.0002
         }, "icon": "⚖️"
     },
-    "Temperature": {
-        "units": ["Celsius (°C)", "Fahrenheit (°F)", "Kelvin (K)"], "icon": "🌡️"
-    },
-    "Capacitance": {
+    "Area": {
         "units": {
-            "Farads (F)": 1.0, "Millifarads (mF)": 1e-3, "Microfarads (μF)": 1e-6,
-            "Nanofarads (nF)": 1e-9, "Picofarads (pF)": 1e-12
-        }, "icon": "💡"
-    }
+            "Square Meters (m²)": 1.0, "Square Centimeters (cm²)": 1e-4, "Square Kilometers (km²)": 1e6,
+            "Hectares (ha)": 10000.0, "Square Feet (ft²)": 0.092903, "Acres (ac)": 4046.86,
+            "Square Miles (mi²)": 2.59e6
+        }, "icon": "📐"
+    },
+    "Volume": {
+        "units": {
+            "Cubic Meters (m³)": 1.0, "Liters (L)": 0.001, "Milliliters (mL)": 1e-6,
+            "Cubic Centimeters (cm³)": 1e-6, "Cubic Feet (ft³)": 0.0283168,
+            "US Gallons (gal)": 0.00378541, "US Quarts (qt)": 0.000946353
+        }, "icon": "🧊"
+    },
+    "Data": {
+        "units": {
+            "Bits (b)": 1.0, "Bytes (B)": 8.0, "Kilobits (kb)": 1000.0,
+            "Kilobytes (kB)": 8000.0, "Megabits (Mb)": 1e6, "Megabytes (MB)": 8e6,
+            "Gigabits (Gb)": 1e9, "Gigabytes (GB)": 8e9, "Terabits (Tb)": 1e12,
+            "Terabytes (TB)": 8e12
+        }, "icon": "💾"
+    },
+    "Force": {
+        "units": {
+            "Newtons (N)": 1.0, "Kilonewtons (kN)": 1000.0, "Pounds-force (lbf)": 4.44822,
+            "Dynes (dyn)": 1e-5, "Kilogram-force (kgf)": 9.80665
+        }, "icon": "💪"
+    },
+    "Pressure": {
+        "units": {
+            "Pascals (Pa)": 1.0, "Kilopascals (kPa)": 1000.0, "Bar": 100000.0,
+            "Atmospheres (atm)": 101325.0, "Millimeters of Mercury (mmHg)": 133.322,
+            "Pounds per Square Inch (psi)": 6894.76
+        }, "icon": "🎚️"
+    },
+    "Energy": {
+        "units": {
+            "Joules (J)": 1.0, "Kilojoules (kJ)": 1000.0, "Calories (cal)": 4.184,
+            "Kilocalories (kcal)": 4184.0, "Watt-hours (Wh)": 3600.0,
+            "Kilowatt-hours (kWh)": 3.6e6, "Electronvolts (eV)": 1.60218e-19,
+            "British Thermal Unit (BTU)": 1055.06
+        }, "icon": "🔋"
+    },
+    "Power": {
+        "units": {
+            "Watts (W)": 1.0, "Kilowatts (kW)": 1000.0, "Megawatts (MW)": 1e6,
+            "Horsepower (hp)": 745.7, "BTU/hour": 0.293071
+        }, "icon": "⚡"
+    },
+    "Voltage": {
+        "units": { "Volts (V)": 1.0, "Millivolts (mV)": 0.001, "Kilovolts (kV)": 1000.0 },
+        "icon": "⚡"
+    },
+    "Electric Current": {
+        "units": { "Amperes (A)": 1.0, "Milliamperes (mA)": 0.001, "Kiloamperes (kA)": 1000.0 },
+        "icon": "🔌"
+    },
+    "Resistance": {
+        "units": { "Ohms (Ω)": 1.0, "Kiloohms (kΩ)": 1000.0, "Megaohms (MΩ)": 1e6 },
+        "icon": "🔩"
+    },
+    "Frequency": {
+        "units": { "Hertz (Hz)": 1.0, "Kilohertz (kHz)": 1000.0, "Megahertz (MHz)": 1e6, "Gigahertz (GHz)": 1e9 },
+        "icon": "🎵"
+    },
+    # Add other categories as needed
 }
 
 # --- CUSTOM CSS ---
