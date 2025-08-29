@@ -32,11 +32,15 @@ UNIT_CATEGORIES = {
 # Add more as required...
 }
 def load_css():
-st.markdown("""
+st.markdown(
+"""
 .stApp {
 background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 background-attachment: fixed;
 }
+""",
+unsafe_allow_html=True
+)
 .main-container {
 background-color: rgba(255, 255, 255, 0.85);
 padding: 2rem;
