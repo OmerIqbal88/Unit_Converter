@@ -43,7 +43,12 @@ unsafe_allow_html=True
 )
 .main-container {
 background-color: rgba(255, 255, 255, 0.85);
-padding: 2rem;
+```
+st.markdown(
+"div {padding: 2rem;}",
+unsafe_allow_html=True
+)
+```
 border-radius: 18px;
 box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.20);
 border: 1px solid rgba(255, 255, 255, 0.18);
